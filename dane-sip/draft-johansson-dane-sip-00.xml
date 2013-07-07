@@ -186,6 +186,7 @@
 	bogus DNS records, directing traffic to a bad server. This applies to
 	calls as well as instant messaging, chat and presense.
 	</t>
+	</section>
 	<section anchor="DaneSecureDelegation" title="Secure delegation is required for DANE to apply"> 
 	<t>
 	It is important for implementors to understand the concept of "secure" DNSsec validation 
@@ -216,6 +217,7 @@
 	<t>If a TLSA record is found, the client should never fall back to
 	RFC 5922 behaviour. If TLSA-based validation fails, the client
 	MUST abort the connection attempt.
+	</t>
 	</section>
 
 	<section anchor="CertificateContents" title="X.509 certicate validation"> 
