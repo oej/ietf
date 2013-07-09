@@ -77,15 +77,16 @@
 	
     <abstract>
 	<t>
-	Use of TLS in the SIP protocol is defined in multiple documents.
+	Use of TLS in the SIP protocol is defined in multiple documents, starting with RFC 3261.
 	The actual verification that happens when setting up a SIP TLS connection to a SIP
-	server based on a SIP URI is described in RFC 5922 - SIP Domain Certificates.
-	This document defines an alternative method using 
-	DNS-Based Authentication of Named Entities (DANE). Using TLSA DNS records and DNSsec 
-	protection of queries for NAPTR and SRV records, a SIP Client can verify
+	server based on a SIP URI is described in detail in RFC 5922 - SIP Domain Certificates.</t>
+	<t>In this document, an alternative method is defined, using 
+	DNS-Based Authentication of Named Entities (DANE).
+	By looking up TLSA DNS records and using DNSsec protection of the required queries,
+	including lookups for NAPTR and SRV records, a SIP Client can verify
 	the identity of the TLS SIP server in a different way, matching on the SRV host name
-	instead of the SIP domain. This provides more scalability in hosting solutions
-	and make it easier to use standard CA certificates (if needed at all).
+	in the X.509 PKIX certificate instead of the SIP domain. This provides more scalability
+	in hosting solutions and make it easier to use standard CA certificates (if needed at all).
 	</t>
 	<t>
 	This document updates RFC 5922.
@@ -98,19 +99,23 @@
 
     <section anchor="Introduction" title="Introduction">
 	<t>
-	RFC 5922 <xref target="RFC5922"/> defines how a SIP client matches a PKIX X.509 <xref target="RFC5280"/>
-	certificate provided by a TLS-enabled SIP server with the domain of a SIP request
-	that caused the connection to
-	be set up. Verification is done using the domain part of the SIP URI and the
+	RFC 3261 <xref target="RFC3261"/> defines how to use TLS in the SIP protocol, but
+	doesn't describe the actual verification between a SIP request and a TLS server
+	certificate in detail.
+	RFC 5922 <xref target="RFC5922"/> updates RFC 3261 with a definition of how a SIP 
+	client matches a PKIX X.509 <xref target="RFC5280"/> certificate provided by a
+	TLS-enabled SIP server with the domain of a SIP request that caused the connection
+	to be set up. Verification is done using the domain part of the SIP URI and the
 	X.509 SubjectAltName extension of type dNSName or uniformResourceIdentifier.
-	This is called domain verification as opposed to host verification.
+	This is called "domain verification" as opposed to "host verification" in RFC 5922.
 	</t>
 	<t>
 	Including all domains hosted by a server in a server's certificate doesn't provide for a 
 	scalable and easy-managed solution. Every time a service adds a domain, a new certificate
 	will need to be provided, unless TLS Server Name Identification (SNI) is used,
-	where each domain can have it's own certificate. Have one certificate per domain
-	and subdomain adds to the administration of a service.
+	where each domain can have it's own certificate. Having one certificate per domain
+	and subdomain adds to the administration of a service. In addition, no known 
+	commercial CA offers certificate services with SIP URI's in the certificates.
 	</t>
 	<t>
 	Using DNSsec and DNS-based Authentication of Named Entities (DANE)<xref target="RFC6698"/>
@@ -126,11 +131,14 @@
 	</t>
 	<t>
 	This document updates RFC5922 so that SIP implementations supporting DANE 
-	can validate a SIP domain certificate using the SRV host name found in
+	can validate a SIP domain identity using secure DNS queries and the identity
+	of the SIP host by verifying the certificate using the SRV host name found in
 	a SubjectAltName extension of type DNSName in the certificate.
 	The domain verification will now happen based on DNSsec and the 
 	TLS verification will be based on host names (host verification in RFC 5922).
 	</t>
+	<t>In order to learn about DANE and the different ways a TLSA record can
+	be constructed, readers of this document needs to also read RFC 6XXX.
 
     </section>
 
@@ -166,7 +174,6 @@
 	</t>
 	<t>SIP SRV records for TLS/TCP are using the prefix _sips._tcp, as in the DNS name
 	_sips._tcp.example.com.</t>
-	<t>NOTE: XXX any definition for _sips._udp ??? DTLS??? </t>
 	<t>A SIP implementation with no support for NAPTR may, based on configuration
 	or URI scheme, choose to set up a TLS session to the target domain.</t>
 	<t>
