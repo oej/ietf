@@ -251,7 +251,50 @@
 	in this document, since SIP certificates can support both RFC 5922
 	style validation and DANE-based validation with the same certificate.
 	</t>
-	</section>
+	<section anchor="CertExamples" title="Examples on certificate content">
+	<t>
+	This section gives examples on certificate content and how the match
+	a given URI. The X.509 PKIX Subject field CN value is abbreviated as "CN",
+	the SubjectAltName extension DNSName and uniformResourceIdentifier are 
+	abbreviated as "SAN-DNS" and "SAN-URI". The certificates are tested
+	with three different clients. A DANE-aware client, a RFC 5922 client
+	with no DANE support and a client that matches the SIP domain
+	with the Common Name in the Subject of the certificate. The last
+	example is not really covered by any SIP-related RFC and should
+	be avoided.
+	</t>
+	<section anchor="Example1" title="Example 1: johansson.example.com">
+	<t>
+	Domain: johansson.example.com
+	DNS SRV host for TLS: siphosting.example.net
+	
+	Certificate content:
+	CN:	siphosting.example.net
+	No SAN-DNS or SAN-URI fields.
+	</t>
+	<t>
+	Matching for DANE-aware SIP clients: Yes
+	Matching for only RFC 5922 SIP clients: No
+	Matching on CNAME only:	No
+	</t>
+	</section><!-- Example Johansson -->
+
+	<section anchor="Example2" title="Example 2: lundholm.example.com">
+	<t>
+	Domain: lundholm.example.com
+	DNS SRV host for TLS: sipcrew.example.net
+	
+	Certificate content:
+	CN:	randomname.example.net
+	SAN-URI:	sip:lundholm.example.com
+	SAN-DNS		lundholm.example.com
+	</t>
+	<t>
+	Matching for DANE-aware SIP clients: Yes
+	Matching for only RFC 5922 SIP clients: Yes
+	</t>
+	</section><!-- Example Lundholm -->
+	</section><!-- Examples -->
 
 	<section anchor="Security" title="Security Considerations"> 
 		<t>
