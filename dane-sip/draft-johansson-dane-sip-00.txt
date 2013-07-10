@@ -4,9 +4,9 @@
 
 Dispatch                                                    O. Johansson
 Internet-Draft                                                 Edvina AB
-Updates: 5922 (if approved)                                July 07, 2013
+Updates: 5922 (if approved)                                July 10, 2013
 Intended status: Standards Track
-Expires: January 08, 2014
+Expires: January 11, 2014
 
 
   TLS sessions in SIP using DNS-based Authentication of Named Entities
@@ -15,14 +15,17 @@ Expires: January 08, 2014
 
 Abstract
 
-   Use of TLS in the SIP protocol is defined in multiple documents.  The
-   actual verification that happens when setting up a SIP TLS connection
-   to a SIP server based on a SIP URI is described in RFC 5922 - SIP
-   Domain Certificates.  This document defines an alternative method
-   using DNS-Based Authentication of Named Entities (DANE).  Using TLSA
-   DNS records and DNSsec protection of queries for NAPTR and SRV
-   records, a SIP Client can verify the identity of the TLS SIP server
-   in a different way, matching on the SRV host name instead of the SIP
+   Use of TLS in the SIP protocol is defined in multiple documents,
+   starting with RFC 3261.  The actual verification that happens when
+   setting up a SIP TLS connection to a SIP server based on a SIP URI is
+   described in detail in RFC 5922 - SIP Domain Certificates.
+
+   In this document, an alternative method is defined, using DNS-Based
+   Authentication of Named Entities (DANE).  By looking up TLSA DNS
+   records and using DNSsec protection of the required queries,
+   including lookups for NAPTR and SRV records, a SIP Client can verify
+   the identity of the TLS SIP server in a different way, matching on
+   the SRV host name in the X.509 PKIX certificate instead of the SIP
    domain.  This provides more scalability in hosting solutions and make
    it easier to use standard CA certificates (if needed at all).
 
@@ -43,22 +46,17 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on January 08, 2014.
+   This Internet-Draft will expire on January 11, 2014.
+
+Copyright Notice
 
 
 
 
-
-
-
-
-
-Johansson               Expires January 08, 2014                [Page 1]
+Johansson               Expires January 11, 2014                [Page 1]
 
 Internet-Draft     SIP TLS connection setup using DANE         July 2013
 
-
-Copyright Notice
 
    Copyright (c) 2013 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
@@ -77,46 +75,53 @@ Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
    2.  Terminology and Conventions Used in This Document . . . . . .   3
-   3.  Using DNS in the SIP protocol . . . . . . . . . . . . . . . .   3
+   3.  Using DNS in the SIP protocol . . . . . . . . . . . . . . . .   4
    4.  Why DNSsec is important for SIP . . . . . . . . . . . . . . .   4
    5.  Secure delegation is required for DANE to apply . . . . . . .   4
    6.  TLSA record name  . . . . . . . . . . . . . . . . . . . . . .   5
    7.  Procedures for DANE-capable SIP implementations . . . . . . .   5
    8.  X.509 certicate validation  . . . . . . . . . . . . . . . . .   5
    9.  Backward Compatibility with RFC 5922  . . . . . . . . . . . .   5
-   10. Security Considerations . . . . . . . . . . . . . . . . . . .   5
-   11. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   6
-   12. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   6
-   13. References  . . . . . . . . . . . . . . . . . . . . . . . . .   6
-     13.1.  Normative References . . . . . . . . . . . . . . . . . .   6
-     13.2.  Informative References . . . . . . . . . . . . . . . . .   7
-   Appendix A.  Appendix A. Implementation notes . . . . . . . . . .   7
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   8
+   10. Examples on certificate content . . . . . . . . . . . . . . .   6
+     10.1.  Example 1: johansson.example.com . . . . . . . . . . . .   6
+     10.2.  Example 2: lundholm.example.com  . . . . . . . . . . . .   6
+   11. Security Considerations . . . . . . . . . . . . . . . . . . .   7
+   12. IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
+   13. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   7
+   14. References  . . . . . . . . . . . . . . . . . . . . . . . . .   7
+     14.1.  Normative References . . . . . . . . . . . . . . . . . .   7
+     14.2.  Informative References . . . . . . . . . . . . . . . . .   8
+   Appendix A.  Appendix A. Implementation notes . . . . . . . . . .   8
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   9
 
 1.  Introduction
 
-   RFC 5922 [RFC5922] defines how a SIP client matches a PKIX X.509
+   RFC 3261 [RFC3261] defines how to use TLS in the SIP protocol, but
+   doesn't describe the actual verification between a SIP request and a
+   TLS server certificate in detail.  RFC 5922 [RFC5922] updates RFC
+   3261 with a definition of how a SIP client matches a PKIX X.509
    [RFC5280] certificate provided by a TLS-enabled SIP server with the
    domain of a SIP request that caused the connection to be set up.
    Verification is done using the domain part of the SIP URI and the
    X.509 SubjectAltName extension of type dNSName or
-   uniformResourceIdentifier.  This is called domain verification as
-   opposed to host verification.
-
-   Including all domains hosted by a server in a server's certificate
-   doesn't provide for a scalable and easy-managed solution.  Every time
-   a service adds a domain, a new certificate will need to be provided,
+   uniformResourceIdentifier.  This is called "domain verification" as
+   opposed to "host verification" in RFC 5922.
 
 
 
-Johansson               Expires January 08, 2014                [Page 2]
+Johansson               Expires January 11, 2014                [Page 2]
 
 Internet-Draft     SIP TLS connection setup using DANE         July 2013
 
 
+   Including all domains hosted by a server in a server's certificate
+   doesn't provide for a scalable and easy-managed solution.  Every time
+   a service adds a domain, a new certificate will need to be provided,
    unless TLS Server Name Identification (SNI) is used, where each
-   domain can have it's own certificate.  Have one certificate per
-   domain and subdomain adds to the administration of a service.
+   domain can have it's own certificate.  Having one certificate per
+   domain and subdomain adds to the administration of a service.  In
+   addition, no known commercial CA offers certificate services with SIP
+   URI's in the certificates.
 
    Using DNSsec and DNS-based Authentication of Named Entities
    (DANE)[RFC6698] the chain from a SIP uri to a TLS certificate
@@ -131,11 +136,16 @@ Internet-Draft     SIP TLS connection setup using DANE         July 2013
    5922-style clients with the same certificate, if needed.
 
    This document updates RFC5922 so that SIP implementations supporting
-   DANE can validate a SIP domain certificate using the SRV host name
-   found in a SubjectAltName extension of type DNSName in the
-   certificate.  The domain verification will now happen based on DNSsec
-   and the TLS verification will be based on host names (host
+   DANE can validate a SIP domain identity using secure DNS queries and
+   the identity of the SIP host by verifying the certificate using the
+   SRV host name found in a SubjectAltName extension of type DNSName in
+   the certificate.  The domain verification will now happen based on
+   DNSsec and the TLS verification will be based on host names (host
    verification in RFC 5922).
+
+   In order to learn about DANE and the different ways a TLSA record can
+   be constructed, readers of this document needs to also read RFC 6698
+   [RFC6698].
 
 2.  Terminology and Conventions Used in This Document
 
@@ -149,6 +159,17 @@ Internet-Draft     SIP TLS connection setup using DANE         July 2013
    or "UAC"; "back-to-back user agent" or "B2BUA"; "dialog";
    "transaction"; "server transaction".
 
+
+
+
+
+
+
+Johansson               Expires January 11, 2014                [Page 3]
+
+Internet-Draft     SIP TLS connection setup using DANE         July 2013
+
+
    This document uses the term "SIP Server" that is defined to include
    the following SIP entities: user agent server (UAS), registrar,
    redirect server, a SIP proxy in the role of user agent server, and a
@@ -160,15 +181,6 @@ Internet-Draft     SIP TLS connection setup using DANE         July 2013
    agent client.
 
 3.  Using DNS in the SIP protocol
-
-
-
-
-
-Johansson               Expires January 08, 2014                [Page 3]
-
-Internet-Draft     SIP TLS connection setup using DANE         July 2013
-
 
    RFC 3263[RFC3263] describes how a SIP implementation use DNS to find
    the next hop server.  The first step is to look up a DNS NAPTR record
@@ -182,8 +194,6 @@ Internet-Draft     SIP TLS connection setup using DANE         July 2013
 
    SIP SRV records for TLS/TCP are using the prefix _sips._tcp, as in
    the DNS name _sips._tcp.example.com.
-
-   NOTE: XXX any definition for _sips._udp ??? DTLS???
 
    A SIP implementation with no support for NAPTR may, based on
    configuration or URI scheme, choose to set up a TLS session to the
@@ -208,6 +218,14 @@ Internet-Draft     SIP TLS connection setup using DANE         July 2013
 
    It is important for implementors to understand the concept of
    "secure" DNSsec validation according to RFC 4033[RFC4033].  For this
+
+
+
+Johansson               Expires January 11, 2014                [Page 4]
+
+Internet-Draft     SIP TLS connection setup using DANE         July 2013
+
+
    specification to take effect, all DNS RRsets in the chain from SIP
    URI to IP address and TLSA record must be secure.  (This corresponds
    to the A.D. bit being set in the responses).
@@ -216,15 +234,6 @@ Internet-Draft     SIP TLS connection setup using DANE         July 2013
    implementation should fall back to RFC 5922[RFC5922] behaviour.  If
    any of the responses are "bogus" according to DNSsec validation, the
    client MUST abort the connection.
-
-
-
-
-
-Johansson               Expires January 08, 2014                [Page 4]
-
-Internet-Draft     SIP TLS connection setup using DANE         July 2013
-
 
 6.  TLSA record name
 
@@ -266,21 +275,78 @@ Internet-Draft     SIP TLS connection setup using DANE         July 2013
    can use certificates that are compatible with both this specification
    and RFC5922.
 
+
+
+Johansson               Expires January 11, 2014                [Page 5]
+
+Internet-Draft     SIP TLS connection setup using DANE         July 2013
+
+
    [I-D.ietf-dane-srv] requires use of the TLS Server Name Indication
    (SNI) extension [RFC6066].  This is not a requirement in this
    document, since SIP certificates can support both RFC 5922 style
    validation and DANE-based validation with the same certificate.
 
-10.  Security Considerations
+10.  Examples on certificate content
+
+   This section gives examples on certificate content and how the match
+   a given URI.  The X.509 PKIX Subject field CN value is abbreviated as
+   "CN", the SubjectAltName extension DNSName and
+   uniformResourceIdentifier are abbreviated as "SAN-DNS" and "SAN-URI".
+   The certificates are tested with three different clients.  A DANE-
+   aware client, a RFC 5922 client with no DANE support and a client
+   that matches the SIP domain with the Common Name in the Subject of
+   the certificate.  The last example is not really covered by any SIP-
+   related RFC and should be avoided.
+
+10.1.  Example 1: johansson.example.com
+
+   o  Domain: johansson.example.com
+
+   o  DNS SRV host for TLS: siphosting.example.net
+
+   Certificate content:
+
+   o  CN: siphosting.example.net
+
+   o  SAN-URI: -
+
+   o  SAN-DNS: -
+
+   o  Matching for DANE-aware SIP clients: Yes
+
+   o  Matching for only RFC 5922 SIP clients: No
+
+   o  Matching on CNAME only: No
+
+10.2.  Example 2: lundholm.example.com
+
+   o  Domain: lundholm.example.com
+
+   o  DNS SRV host for TLS: sipcrew.example.net
+
+   Certificate content:
+
+   o  CN: randomname.example.net
+
+   o  SAN-URI: sip:lundholm.example.com
 
 
 
-
-
-Johansson               Expires January 08, 2014                [Page 5]
+Johansson               Expires January 11, 2014                [Page 6]
 
 Internet-Draft     SIP TLS connection setup using DANE         July 2013
 
+
+   o  SAN-DNS: lundholm.example.com
+
+   o  Matching for DANE-aware SIP clients: Yes
+
+   o  Matching for only RFC 5922 SIP clients: Yes
+
+   Note: More examples is coming here.
+
+11.  Security Considerations
 
    This document use already published solutions for providing
    credentials for setting up a secure connection to a SIP server.  By
@@ -292,18 +358,18 @@ Internet-Draft     SIP TLS connection setup using DANE         July 2013
    In addition to this document, many security considerations are
    covered in ID.ietf-dane-srv.
 
-11.  IANA Considerations
+12.  IANA Considerations
 
    This document does not require actions by IANA.
 
-12.  Acknowledgements
+13.  Acknowledgements
 
    The author wishes to acknowledge Jakob Schlyter for inspiration and
-   .SE for promoting DNSsec and DANE.
+   .SE for promoting DNSsec and DANE.  Victor Dubovn
 
-13.  References
+14.  References
 
-13.1.  Normative References
+14.1.  Normative References
 
    [I-D.ietf-dane-srv]
               Finch, T., "Using DNS-Based Authentication of Named
@@ -318,6 +384,16 @@ Internet-Draft     SIP TLS connection setup using DANE         July 2013
               Schooler, "SIP: Session Initiation Protocol", RFC 3261,
               June 2002.
 
+
+
+
+
+
+Johansson               Expires January 11, 2014                [Page 7]
+
+Internet-Draft     SIP TLS connection setup using DANE         July 2013
+
+
    [RFC3263]  Rosenberg, J. and H. Schulzrinne, "Session Initiation
               Protocol (SIP): Locating SIP Servers", RFC 3263, June
               2002.
@@ -328,15 +404,6 @@ Internet-Draft     SIP TLS connection setup using DANE         July 2013
 
    [RFC4346]  Dierks, T. and E. Rescorla, "The Transport Layer Security
               (TLS) Protocol Version 1.1", RFC 4346, April 2006.
-
-
-
-
-
-Johansson               Expires January 08, 2014                [Page 6]
-
-Internet-Draft     SIP TLS connection setup using DANE         July 2013
-
 
    [RFC5246]  Dierks, T. and E. Rescorla, "The Transport Layer Security
               (TLS) Protocol Version 1.2", RFC 5246, August 2008.
@@ -357,7 +424,7 @@ Internet-Draft     SIP TLS connection setup using DANE         July 2013
               of Named Entities (DANE) Transport Layer Security (TLS)
               Protocol: TLSA", RFC 6698, August 2012.
 
-13.2.  Informative References
+14.2.  Informative References
 
    [I-D.ogud-dane-vocabulary]
               Gudmundsson, O., "Harmonizing how applications specify
@@ -375,6 +442,14 @@ Appendix A.  Appendix A. Implementation notes
    domain with a TLS server.  This document also encourages
    implementation of TLS SNI both in client and server implementations.
    In order to get support of this function, update to new versions of
+
+
+
+Johansson               Expires January 11, 2014                [Page 8]
+
+Internet-Draft     SIP TLS connection setup using DANE         July 2013
+
+
    the TLS libraries and make sure that the implementation supports new
    versions of TLS - TLS 1.1 [RFC4346] and TLS 1.2 [RFC5246].
 
@@ -384,15 +459,6 @@ Appendix A.  Appendix A. Implementation notes
    use it.  If there are no NAPTR records, start SRV lookup with the
    _sips._tcp prefix.  This way, the SIP network will gradually shift to
    always using secure and authenticated TLS sessions.
-
-
-
-
-
-Johansson               Expires January 08, 2014                [Page 7]
-
-Internet-Draft     SIP TLS connection setup using DANE         July 2013
-
 
 Author's Address
 
@@ -435,14 +501,4 @@ Author's Address
 
 
 
-
-
-
-
-
-
-
-
-
-
-Johansson               Expires January 08, 2014                [Page 8]
+Johansson               Expires January 11, 2014                [Page 9]

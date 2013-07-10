@@ -138,7 +138,7 @@
 	TLS verification will be based on host names (host verification in RFC 5922).
 	</t>
 	<t>In order to learn about DANE and the different ways a TLSA record can
-	be constructed, readers of this document needs to also read RFC 6XXX.
+	be constructed, readers of this document needs to also read RFC 6698 <xref target="RFC6698"/>.</t>
 
     </section>
 
@@ -184,6 +184,7 @@
 	</list>
 	</t>
 	</section>
+
 	<section anchor="ReasonsForDnssec" title="Why DNSsec is important for SIP">
 	<t>
 	DNS relies on DNS lookups not only to find the next hop server, but also for
@@ -194,6 +195,7 @@
 	calls as well as instant messaging, chat and presense.
 	</t>
 	</section>
+
 	<section anchor="DaneSecureDelegation" title="Secure delegation is required for DANE to apply"> 
 	<t>
 	It is important for implementors to understand the concept of "secure" DNSsec validation 
@@ -207,6 +209,7 @@
 	are "bogus" according to DNSsec validation, the client MUST abort the connection.
 	</t>
 	</section>
+
 	<section anchor="TlsaName" title="TLSA record name"> 
 	<t>
 	For the SIP protocol DANE usage, TLSA records are to be found in 
@@ -215,6 +218,7 @@
 	TLSA record will be found using the name _5042._tcp.sip01.example.com.
 	</t>
 	</section>
+
 	<section anchor="FallbackTLSA" title="Procedures for DANE-capable SIP implementations">
 	<t>
 	DANE capable SIP implementations follow the procedures above to find a 
@@ -239,6 +243,7 @@
 	update to RFC 5922</t>
 	
 	</section>
+
 	<section anchor="BackwardComp" title="Backward Compatibility with RFC 5922"> 
 	<t>
 	RFC 5922<xref target="RFC5922"/> implementations with no DANE support
@@ -251,6 +256,8 @@
 	in this document, since SIP certificates can support both RFC 5922
 	style validation and DANE-based validation with the same certificate.
 	</t>
+	</section>
+
 	<section anchor="CertExamples" title="Examples on certificate content">
 	<t>
 	This section gives examples on certificate content and how the match
@@ -265,36 +272,50 @@
 	</t>
 	<section anchor="Example1" title="Example 1: johansson.example.com">
 	<t>
-	Domain: johansson.example.com
-	DNS SRV host for TLS: siphosting.example.net
+	<list style="symbols">
+	<t>Domain: johansson.example.com</t>
+	<t>DNS SRV host for TLS: siphosting.example.net</t>
+	</list>
 	
 	Certificate content:
-	CN:	siphosting.example.net
-	No SAN-DNS or SAN-URI fields.
+	<list style="symbols">
+	<t>CN: siphosting.example.net</t>
+	<t>SAN-URI: -</t>
+	<t>SAN-DNS: -</t>
+	</list>
 	</t>
 	<t>
-	Matching for DANE-aware SIP clients: Yes
-	Matching for only RFC 5922 SIP clients: No
-	Matching on CNAME only:	No
+	<list style="symbols">
+	<t>Matching for DANE-aware SIP clients: Yes</t>
+	<t>Matching for only RFC 5922 SIP clients: No</t>
+	<t>Matching on CNAME only: No</t>
+	</list>
 	</t>
 	</section><!-- Example Johansson -->
 
 	<section anchor="Example2" title="Example 2: lundholm.example.com">
 	<t>
-	Domain: lundholm.example.com
-	DNS SRV host for TLS: sipcrew.example.net
+	<list style="symbols">
+	<t>Domain: lundholm.example.com</t>
+	<t>DNS SRV host for TLS: sipcrew.example.net</t>
+	</list>
 	
 	Certificate content:
-	CN:	randomname.example.net
-	SAN-URI:	sip:lundholm.example.com
-	SAN-DNS		lundholm.example.com
+	<list style="symbols">
+	<t>CN: randomname.example.net</t>
+	<t>SAN-URI: sip:lundholm.example.com</t>
+	<t>SAN-DNS: lundholm.example.com</t>
+	</list>
 	</t>
 	<t>
-	Matching for DANE-aware SIP clients: Yes
-	Matching for only RFC 5922 SIP clients: Yes
+	<list style="symbols">
+	<t>Matching for DANE-aware SIP clients: Yes</t>
+	<t>Matching for only RFC 5922 SIP clients: Yes</t>
+	</list>
 	</t>
+	<t>Note: More examples is coming here.</t>
 	</section><!-- Example Lundholm -->
-	</section><!-- Examples -->
+	</section>
 
 	<section anchor="Security" title="Security Considerations"> 
 		<t>
@@ -316,7 +337,7 @@
 	<section anchor="Acknowledgements" title="Acknowledgements">
     	<t>
 	The author wishes to acknowledge Jakob Schlyter for inspiration and .SE for promoting
-	DNSsec and DANE.
+	DNSsec and DANE. Victor Dubovn
 	</t>
 	</section>
     
