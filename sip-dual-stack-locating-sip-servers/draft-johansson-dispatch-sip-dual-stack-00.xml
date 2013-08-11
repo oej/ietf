@@ -240,6 +240,11 @@
         addresses to be contacted. This is a normative update to the
         procedures described in Section 4.2 of RFC 3263 <xref
         target="RFC3263"/>.</t>
+	<t>RFC 2872 <xref target="RFC2872"/> desribes the DNS SRV lookup
+	and the procedures used to set up a connection. This RFC
+	requires lookup of A and AAAA records for a SRV record
+	host name as well as connection attempts to ALL addresses
+	before any other host is attempted. </t>
       </section>
 
       <section anchor="SrvPreference"
