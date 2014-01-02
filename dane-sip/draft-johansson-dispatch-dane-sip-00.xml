@@ -40,7 +40,7 @@
 
 <rfc	category="std"
 	ipr="trust200902"
-	docName="draft-johansson-dane-sip-01"
+	docName="draft-johansson-dispatch-dane-sip-00"
 	updates="5922"
 >
 <front>
@@ -62,7 +62,7 @@
       </address>
     </author>
 
-    <date year="2013" />
+    <date year="2014" />
 <!-- month="May" is no longer necessary note also, day="30" is optional -->
     
     <area>Real Time Applications and Infrastructure (RAI)</area>    

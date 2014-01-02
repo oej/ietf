@@ -11,7 +11,7 @@ Expires: July 6, 2014
 
   TLS sessions in SIP using DNS-based Authentication of Named Entities
                           (DANE) TLSA records
-                  draft-johansson-dispatch-dane-sip-02
+                  draft-johansson-dispatch-dane-sip-00
 
 Abstract
 
