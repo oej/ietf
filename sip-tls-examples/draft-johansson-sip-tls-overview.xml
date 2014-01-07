@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+    <!-- try to enforce the ID-nits conventions and DTD validity -->
+<?rfc strict="yes" ?>    <!-- items used when reviewing the document -->
+<?rfc comments="no" ?>  <!-- controls display of <cref> elements -->
+<?rfc inline="no" ?>    <!-- when no, put comments at end in comments section,
+                                otherwise, put inline -->
+<?rfc editing="no" ?>   <!-- when yes, insert editing marks -->
+
+    <!-- create table of contents (set it options).
+           Note the table of contents may be omitted
+         for very short documents -->
+
+<?rfc toc="yes"?><?rfc tocompact="yes"?>
+<?rfc tocdepth="4"?>
+
+    <!-- choose the options for the references. Some like
+         symbolic tags in the references (and citations)
+         and others prefer numbers. --> 
+<?rfc symrefs="yes"?><?rfc sortrefs="yes" ?>
+    <!-- these two save paper: start new paragraphs from the same page etc. -->
+<?rfc compact="yes" ?><?rfc subcompact="no" ?>
+<!-- end of list of processing instructions -->
+    <!-- Information about the document.
+         categories values: std, bcp, info, exp, and historic
+         For Internet-Drafts, specify attribute "ipr".
+         (ipr values are: full3667, noModification3667, noDerivatives3667),
+         Also for Internet-Drafts, can specify values for
+         attributes "iprExtract", and "docName".  Note
+         that the value for iprExtract is the anchor attribute
+         value of a section that can be extracted, and is only
+         useful when the value of "ipr" is not "full3667". -->
+    <!-- TODO: verify which attributes are specified only
+            by the RFC editor.  It appears that attributes
+            "number", "obsoletes", "updates", and "seriesNo"
+            are specified by the RFC editor (and not by
+            the document author). -->
+
+<rfc	category="std"
+	ipr="trust200902"
+	docName="draft-johansson-sip-tls-overview-00"
+>
+<front>
+    <title abbrev="Overview of SIP and TLS in published IETF RFCs">
+	SIP and TLS in published RFCs: Overview from an implementors point of view</title>
+
+    <!-- add 'role="editor"' below for the editors if appropriate -->    
+
+    <author fullname="Olle E. Johansson" initials="O.E." surname="Johansson">
+      <organization>Edvina AB</organization>
+
+      <address>
+        <postal>
+          <street>Runbovägen 10</street>
+          <city>Sollentuna</city>
+          <code>SE-192 48</code>
+          <country>SE</country>
+        </postal>
+        <email>oej@edvina.net</email>
+      </address>
+    </author>
+
+    <date year="2014" />
+<!-- month="May" is no longer necessary note also, day="30" is optional -->
+    
+    <area>Applications area (APPS)</area>    
+    
+    <!-- WG name at the upperleft corner of the doc, IETF fine for individual submissions -->
+    
+    <workgroup>UTA</workgroup>
+    
+    <keyword>I-D</keyword>
+
+    <keyword>Internet-Draft</keyword>
+	
+    <abstract>
+	<t>
+	Use of TLS in the SIP protocol is defined in multiple documents, starting with RFC 3261.
+	As an implementor, the descriptions on how to use TLS in these RFCs is often incomplete and in some cases confusing. 
+	</t>
+	<t>
+	The idea with this overview is to show how different various RFCs 
+	describe use of TLS. In order to avoid this, guidelines for authors
+	of IETF documents involving TLS are needed.
+	</t>
+	<t>
+	This document is not a complete overview and is not meant to be a standards track document. It's meant to be input to the UTA working group f
+	</t>
+    </abstract>
+
+</front>
+
+<middle>
+
+    <section anchor="Introduction" title="Introduction">
+	<t>
+	RFC 3261 <xref target="RFC3261"/> defines how to use TLS in the SIP protocol, but
+	doesn't describe the actual verification between a SIP request and a TLS server
+	certificate in detail.
+	RFC 5922 <xref target="RFC5922"/> updates RFC 3261 with a definition of how a SIP 
+	client matches a PKIX X.509 <xref target="RFC5280"/> certificate provided by a
+	TLS-enabled SIP server with the domain of a SIP request that caused the connection
+	to be set up. Verification is done using the domain part of the SIP URI and the
+	X.509 SubjectAltName extension of type dNSName or uniformResourceIdentifier.
+	This is called "domain verification" as opposed to "host verification" in RFC 5922.
+	</t>
+	<t>
+	Including all domains hosted by a server in a server's certificate doesn't provide for a 
+	scalable and easy-managed solution. Every time a service adds a domain, a new certificate
+	will need to be provided, unless TLS Server Name Identification (SNI) is used,
+	where each domain can have it's own certificate. Having one certificate per domain
+	and subdomain adds to the administration of a service. In addition, no known 
+	commercial CA offers certificate services with SIP URI's in the certificates.
+	</t>
+	<t>
+	Using DNSsec and DNS-based Authentication of Named Entities (DANE)<xref target="RFC6698"/>
+	the chain from a SIP uri to a TLS certificate changes, as outlined in this document.
+	With DNSsec, the DNS lookups are authenticated and can be verified and trusted.
+	<xref target="I-D.ietf-dane-srv"/> describes a DANE-based chain of trust, matching
+	the SRV host name with the contents of the certificate.
+	</t>
+    </section>
+	<section anchor="divide" title="The big divide - provider provided security or user-controlled security?">
+	<t>
+	SIP has footholds in two very different worlds. It’s the old bellhead vs nethead
+	discussion all over again, something that shows when looking at security solutions for SIP. 
+	Some of them are traditionally Telco-focused, where the service provider provides security for the 
+	users, asking the users to trust the service to handle keys, certificates and process signaling and
+	media unencrypted. The traditional datacom side, to take it to the extreme, is that only end users
+	can manage their own security. Security needs to be end to end in this world. These trust or ”no-trust”
+	perspectives affects the proposals and makes it hard to get an overview of a single ”SIP Security Architecture” 
+	- because it doesn’t exist. In true IETF spirit, there are many and in some cases incompatible, proposals.
+	</t>
+	<t>The SIP architecture has been developed during more than 10 years and the SIP security framework has been 
+	added to in a large amount of RFCs, that doesn’t always match when combined into one solution. The addition
+	of SIP outbound, Gruus, SIP connection reuse and the clarification of the SIPS uri has been huge steps forward
+	in providing a solution where TLS can be used in production, compared with the initial specification in RFC 3261.
+	</t>
+	<t>
+	There are RFCs that indicates a need for security but doesn’t provide the developer with any clear directives.
+	This document tries to build a combined picture of the current state of SIP security to provide a basis for
+	further work in order to both build a more clear framework that can be used to provide running code, and to
+	find issues that still needs solutions.
+	</t>
+	<t>The document doesn’t focus on attack scenarios, media security or issues with encryption algorithms or protocols.</t>
+	</section>
+
+	<section anchor="Security" title="Security Considerations"> 
+		<t>
+		...
+		</t>
+	</section>
+	
+	<section anchor="IANA" title="IANA Considerations"> 
+  		<t>This document does not require actions by IANA.</t>
+	</section>
+
+	<section anchor="Acknowledgements" title="Acknowledgements">
+    	<t>
+	...
+	</t>
+	</section>
+    
+</middle>
+
+<back>
+    <references title="Normative References">
+      <?rfc include="reference.RFC.2119" ?>
+      <?rfc include="reference.RFC.3261" ?>
+      <?rfc include="reference.RFC.3263" ?>
+      <?rfc include="reference.RFC.4033" ?>
+      <?rfc include="reference.RFC.4346" ?>
+      <?rfc include="reference.RFC.5246" ?>
+      <?rfc include="reference.RFC.5280" ?>
+      <?rfc include="reference.RFC.5922" ?>
+      <?rfc include="reference.RFC.6698" ?>
+      <?rfc include="reference.RFC.6066" ?>
+      <?rfc include="reference.I-D.ietf-dane-srv" ?>
+	 	 
+    </references>
+    
+    <references title="Informative References">
+      <?rfc include="reference.RFC.5589" ?>
+      <?rfc include="reference.I-D.ogud-dane-vocabulary" ?>
+   </references>
+	<section anchor="appendixa" title="Appendix A. Implementation notes">
+	<t>
+	Developers of SIP implementations are strongly encouraged to implement
+	RFC 5922 and this document for secure verification of a SIP domain
+	with a TLS server. This document also encourages implementation of TLS SNI
+	both in client and server implementations. In order to get support of
+	this function, update to new versions of the TLS libraries and make sure that
+	the implementation supports new versions of TLS - 
+	TLS 1.1 <xref target="RFC4346"/> and TLS 1.2 <xref target="RFC5246"/>.
+	</t>
+
+	</section>
+  </back>
+</rfc>
