@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<!-- try to enforce the ID-nits conventions and DTD validity -->
+<?rfc strict="yes" ?>
+<!-- items used when reviewing the document -->
+<?rfc comments="no" ?>
+<!-- controls display of <cref> elements -->
+<?rfc inline="no" ?>
+<!-- when no, put comments at end in comments section,
+                                otherwise, put inline -->
+<?rfc editing="no" ?>
+<!-- when yes, insert editing marks -->
+<!-- create table of contents (set it options).
+           Note the table of contents may be omitted
+         for very short documents -->
+<?rfc toc="yes"?>
+<?rfc tocompact="yes"?>
+<?rfc tocdepth="4"?>
+<!-- choose the options for the references. Some like
+         symbolic tags in the references (and citations)
+         and others prefer numbers. -->
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes" ?>
+<!-- these two save paper: start new paragraphs from the same page etc. -->
+<?rfc compact="yes" ?>
+<?rfc subcompact="no" ?>
+<!-- end of list of processing instructions -->
+<!-- Information about the document.
+         categories values: std, bcp, info, exp, and historic
+         For Internet-Drafts, specify attribute "ipr".
+         (ipr values are: full3667, noModification3667, noDerivatives3667),
+         Also for Internet-Drafts, can specify values for
+         attributes "iprExtract", and "docName".  Note
+         that the value for iprExtract is the anchor attribute
+         value of a section that can be extracted, and is only
+         useful when the value of "ipr" is not "full3667". -->
+<!-- TODO: verify which attributes are specified only
+            by the RFC editor.  It appears that attributes
+            "number", "obsoletes", "updates", and "seriesNo"
+            are specified by the RFC editor (and not by
+            the document author). -->
+<rfc category="std" docName="draft-johansson-sip-he-connection"
+     ipr="trust200902">
+  <front>
+    <title abbrev="SIP Happy Eyeballs - connection-oriented transports">
+	Setting up a connection in a dual stack network using the
+	Session Initiation Protocol (SIP) using connection oriented transports
+    </title>
+
+    <!-- add 'role="editor"' below for the editors if appropriate -->
+
+    <author fullname="Olle E. Johansson" initials="O. E"
+            surname="Johansson">
+      <organization>Edvina AB</organization>
+
+      <address>
+        <postal>
+          <street>Runbov&auml;gen 10</street>
+
+          <city>Sollentuna</city>
+
+          <code>SE-192 48</code>
+
+          <country>SE</country>
+        </postal>
+
+        <email>oej@edvina.net</email>
+      </address>
+    </author>
+
+    <author fullname="Gonzalo Salgueiro" initials="G"
+            surname="Salgueiro">
+      <organization>Cisco Systems</organization>
+
+      <address>
+        <postal>
+          <street>7200-12 Kit Creek Road</street>
+
+          <city>Research Triangle Park</city>
+
+          <region>NC</region>
+
+          <code>27709</code>
+
+          <country>US</country>
+        </postal>
+
+        <email>gsalguei@cisco.com</email>
+      </address>
+    </author>
+
+    <date year="2016"/>
+
+    <!-- month="May" is no longer necessary note also, day="30" is optional -->
+
+    <area>Applications and Real-Time Area (ART)</area>
+
+    <!-- WG name at the upperleft corner of the doc, IETF fine for individual submissions -->
+
+    <workgroup>SIPCORE</workgroup>
+
+    <keyword>I-D</keyword>
+
+    <keyword>Internet-Draft</keyword>
+
+    <abstract>
+	<t>The Session Initiation Protocol (SIP) supports multiple transports
+	running both over IPv4 and IPv6 protocols. In more and more cases,
+	a SIP user agent (UA) is connected to multiple network interfaces.
+	In these cases setting up a connection from a dual stack client
+	to a dual stack server may suffer from the issues described in RFC 6555
+	<xref target="RFC6555"/> - Happy Eyeballs - significant delays in the
+	process of setting up a working flow
+	to a server. This negatively affects user experience.</t>
+	<t>This document builds on RFC 6555 and explains how a RFC3261
+	<xref target="RFC3261"/> compliant SIP implementation can quickly set up working flows
+	in a dual stack network using connection oriented transport protocols.
+	A solution for connectionless transport protocols is discussed in
+	a separate document.</t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section anchor="Introduction" title="Introduction">
+      <t>The core SIP <xref target="RFC3261"/> RFCs were written with
+      support for both IPv4 and IPv6 in mind, but they were not fully
+      equipped to handle highly hybridized environments during this
+      transitional phase of migration from IPv4 to IPv6 networks,
+      where many server and client implementations run on dual stack
+      hosts. In such environments, a dual-stack host will likely
+      suffer greater connection delay, and by extension an inferior
+      user experience, than an IPv4-only host. The need to remedy this
+      diminished performance of dual-stack hosts led to the
+      development of the Happy Eyeballs <xref target="RFC6555"/>
+      algorithm, that has since been implemented in many
+      applications.</t>
+
+      <t>This document updates RFC 3261<xref target="RFC3261"/>
+      procedures so that a dual-stack client using connection oriented
+      transport SHOULD set up multiple connections in parallell,
+      based on the result of DNS queries.</t>
+
+      <t>Procedures for connectionless transport protocols for SIP
+      will be described in a separate document.</t>
+    </section>
+
+    <section anchor="Conventions"
+             title="Terminology and Conventions Used in This Document">
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+      NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and
+      "OPTIONAL" in this document are to be interpreted as described
+      in RFC 2119 <xref target="RFC2119"/>.</t>
+
+      <t>RFC 3261 <xref target="RFC3261"/> defines additional terms
+      used in this document that are specific to the SIP domain such
+      as "proxy"; "registrar"; "redirect server"; "user agent server"
+      or "UAS"; "user agent client" or "UAC"; "back-to-back user
+      agent" or "B2BUA"; "dialog"; "transaction"; "server
+      transaction".</t>
+
+      <t>This document uses the term "SIP Server" that is defined to
+      include the following SIP entities: user agent server,
+      registrar, redirect server, a SIP proxy in the role of user
+      agent server, and a B2BUA in the role of a user agent
+      server.</t>
+
+      <t>This document also uses the following terminology to make
+      clear distinction between SIP entities supporting only IPv4,
+      only IPv6 or supporting both IPv4 and IPv6.</t>
+
+      <t><list style="hanging">
+          <t hangText="IPv4-only UA/UAC/UAS:">An IPv4-only UA/UAC/UAS
+          supports SIP signaling and media only on the IPv4 network.
+          It does not understand IPv6 addresses.</t>
+
+          <t hangText="IPv6-only UA/UAC/UAS:">An IPv6-only UA/UAC/UAS
+          supports SIP signaling and media only on the IPv6 network.
+          It does not understand IPv4 addresses.</t>
+
+          <t hangText="IPv4/IPv6 UA/UAC/UAS:">A UA/UAC/UAS that
+          supports SIP signaling and media on both IPv4 and IPv6
+          networks; such a UA/UAC/UAS is known (and will be referred
+          to in this document) as a "dual-stack" <xref
+          target="RFC4213"/> UA/UAC/UAS.</t>
+        </list></t>
+	<t>Discussion: Do we need special handling of websocket transport?</t>
+    </section>
+
+    <section anchor="DNSprocedures"
+             title="Background: DNS Procedures in a Dual-Stack Network">
+	<t>SIP used DNS to find a server based on a SIP URI. This process
+	is described in RFC 3263<xref target="RFC3263"/> and updated
+	in draft-ietf-sipcore-dns-dual-stack. Using these procedures,
+	a host name is selected and DNS lookups of address records for 
+	all address families will generate a list of IP addresses to
+	connect to. This list will be used as input for setting up
+	a connection.
+	</t>
+    </section>
+
+    <section anchor="Connecting"
+             title="Setting up the connection">
+	<t>The Happy Eyeballs RFC <xref target="RFC6555"/> does not
+	specify the algorithm used, but requirements on algorithms used
+	for quickly setting up a working connection for the user.
+	The reader is encouraged to read the available documentation
+	as well as study Open Source implementations in order to
+	learn from experience since the publishing of RFC 6555 in 2012.
+	</t>
+	<t>In short, the SIP client is expected to set up two connections,
+	with some head start for one address family (which possibly should
+	be configurable) and then select the first working connection
+	and close the other one. The SIP message is sent on the selected
+	connection only.</t>
+	<t>The reason behind this is to avoid the timeout on one connection
+	before another address will be tested - which in the case of
+	SIP with default timers is 32 seconds. Waiting for timeout before
+	trying with a secondary address will lead to a very poor user experience.
+	</t>
+    </section>
+
+    <section anchor="Security" title="Security Considerations">
+      <t>This document makes two normative changes to the existing
+	procedures in the SIP protocol.
+      The specific security vulnerabilities, attacks and threat models of
+      the various protocols discussed in this document (SIP, DNS, SRV
+      records, etc.) are well documented in their respective
+      specifications.</t>
+    </section>
+
+    <section anchor="IANA" title="IANA Considerations">
+      <t>This document does not require any actions by IANA.</t>
+    </section>
+
+    <section anchor="Acknowledgements" title="Acknowledgements">
+      <t>The author would like to acknowledge the support and
+      contribution of the SIP Forum IPv6 Working Group. This document
+      is based on a lot of tests and discussions at SIPit events,
+      organized by the SIP Forum.</t>
+
+      <t>Acknowledgements for reviews and input: Your name can be here!
+      </t>
+    </section>
+  </middle>
+
+  <back>
+    <references title="Normative References">
+      <?rfc include='reference.RFC.6555"?>
+    </references>
+
+    <references title="Informative References">
+      <?rfc include="reference.RFC.2119"?>
+
+      <?rfc include="reference.RFC.3261"?>
+
+      <?rfc include="reference.RFC.3263"?>
+
+      <?rfc include="reference.RFC.4213"?>
+    </references>
+  </back>
+</rfc>
