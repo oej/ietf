@@ -1,0 +1,182 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- This template is for creating an Internet Draft using xml2rfc,
+    which is available here: http://xml.resource.org. -->
+<!DOCTYPE rfc SYSTEM "rfc2629-xhtml.ent">
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<!-- used by XSLT processors -->
+<!-- For a complete list and description of processing instructions (PIs), 
+    please see http://xml.resource.org/authoring/README.html. -->
+<rfc
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      category="std"
+      docName="draft-johansson-sip-alpn-00"
+      ipr="trust200902"
+      obsoletes=""
+      updates=""
+      submissionType="IETF"
+      xml:lang="en"
+      tocInclude="true"
+      tocDepth="4"
+      symRefs="true"
+      sortRefs="true"
+      version="3">
+  <!-- xml2rfc v2v3 conversion 2.38.1 -->
+  <!-- category values: std, bcp, info, exp, and historic
+    ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
+       or pre5378Trust200902
+    you can add the attributes updates="NNNN" and obsoletes="NNNN" 
+    they will automatically be output with "(if approved)" -->
+
+ <!-- ***** FRONT MATTER ***** -->
+
+ <front>
+    <!-- The abbreviated title is used in the page header - it is only necessary if the 
+        full title is longer than 39 characters -->
+
+   <title abbrev="ALPN usage for SIP">TLS ALPN usage in the Session Initiation Protocol (SIP)</title>
+    <seriesInfo name="Internet-Draft" value="draft-ietf-xml2rfc-template-06"/>
+    <!-- add 'role="editor"' below for the editors if appropriate -->
+
+   <!-- Another author who claims to be an editor -->
+
+   <author fullname="Olle E. Johansson" initials="O.E.J." role="editor" surname="Johansson">
+      <organization>Edvina AB</organization>
+      <address>
+        <postal>
+          <street/>
+          <!-- Reorder these if your country does things differently -->
+
+         <city>Sollentuna</city>
+          <region/>
+          <code/>
+          <country>SE</country>
+        </postal>
+        <phone>+46 8 5000 1625</phone>
+        <email>oej@edvina.net</email>
+        <!-- uri and facsimile elements may also be added -->
+     </address>
+    </author>
+    <date year="2021"/>
+    <!-- If the month and year are both specified and are the current ones, xml2rfc will fill 
+        in the current day for you. If only the current year is specified, xml2rfc will fill 
+	 in the current day and month for you. If the year is not the current one, it is 
+	 necessary to specify at least a month (xml2rfc assumes day="1" if not specified for the 
+	 purpose of calculating the expiry date).  With drafts it is normally sufficient to 
+	 specify just the year. -->
+
+   <!-- Meta-data Declarations -->
+
+   <area>Art</area>
+    <workgroup>Internet Engineering Task Force</workgroup>
+    <!-- WG name at the upperleft corner of the doc,
+        IETF is fine for individual submissions.  
+	 If this element is not present, the default is "Network Working Group",
+        which is used by the RFC Editor as a nod to the history of the IETF. -->
+
+   <keyword>SIP</keyword>
+   <keyword>TLS</keyword>
+   <keyword>ALPN</keyword>
+    <!-- Keywords will be incorporated into HTML output
+        files in a meta tag but they have no effect on text or nroff
+        output. If you submit your draft to the RFC Editor, the
+        keywords will be used for the search engine. -->
+
+   <abstract>
+      <t>Many SIP specifications use other protocols in addition to the core SIP protocol, like HTTP and MSRP. In order to be able to 
+      use multiple protocols on the same port with TLS, a TLS Application Protocol Negotiation Extension (ALPN) protocol ID is 
+      needed (<xref target="RFC7301" format="default">RFC&nbsp;7301</xref>). 
+      This document registers "sip" as the ALPN protocol ID for the SIP protocol.
+      </t>
+    </abstract>
+  </front>
+  <middle>
+    <section numbered="true" toc="default">
+      <name>Introduction</name>
+      <t>A modern SIP server not only supports the Session Initation Protocol (<xref target="RFC3261" format="default">RFC&nbsp;3261</xref>), but also needs to support HTTP and possibly other related protocols, like MSRP.
+      To reduce the number of ports used, a SIP server supporting Transport Layer Security (TLS) can support multiple protocols
+      on the same port, provided the clients signal protocol usage with ALPN.</t>
+     </section>
+      <section numbered="true" toc="default">
+        <name>ALPN registration</name>
+        <t>Registration following the specification in <xref target="RFC7301" format="default">RFC&nbsp;7301</xref></t>
+        <ul>
+        <li>Protocol: SIP</li>
+        <li>Identification Sequence: 0x73 0x69 0x70  (“sip")</li>
+        <li>Reference: RFC 3261</li>
+        </ul>
+      </section>
+
+    
+    <section anchor="Acknowledgements" numbered="true" toc="default">
+      <name>Acknowledgements</name>
+      <t>This document was inspired by registration feedback from Rich Salz.</t>
+    </section>
+
+   <section anchor="IANA" numbered="true" toc="default">
+      <name>IANA Considerations</name>
+      <t>This document registres a new ALPN in the "Application-Layer Protocol Negotiation (ALPN) Protocol IDs"
+   registry under the existing "Transport Layer Security (TLS) Extensions" heading.</t>
+    </section>
+    <section anchor="Security" numbered="true" toc="default">
+      <name>Security Considerations</name>
+      <t>This document modifies the behaviour of compliant SIP servers when being used by compliant SIP implementations (servers and clients). It does not 
+      add any known security issues to the protocol.</t>
+      <t>For security considerations related to usage of ALPN in TLS, see <xref target="RFC7301" format="default">RFC&nbsp;7301</xref></t>
+    </section>
+  </middle>
+  <!--  *****BACK MATTER ***** -->
+
+ <back>
+    <!-- References split into informative and normative -->
+
+   <!-- There are 2 ways to insert reference entries from the citation libraries:
+    1. define an ENTITY at the top, and use "ampersand character"RFC2629; here (as shown)
+    2. simply use a PI "less than character"?rfc include="reference.RFC.2119.xml"?> here
+       (for I-Ds: include="reference.I-D.narten-iana-considerations-rfc2434bis.xml")
+
+    Both are cited textually in the same manner: by using xref elements.
+    If you use the PI option, xml2rfc will, by default, try to find included files in the same
+    directory as the including file. You can also define the XML_LIBRARY environment variable
+    with a value containing a set of directories to search.  These can be either in the local
+    filing system or remote ones accessed by http (http://domain/dir/... ).-->
+
+
+ <references>
+        <name>Normative References</name>
+        <!-- Here we use entities that we defined at the beginning. -->
+
+<reference  anchor='RFC3261' target='https://www.rfc-editor.org/info/rfc3261'>
+<front>
+<title>SIP: Session Initiation Protocol</title>
+<author initials='J.' surname='Rosenberg' fullname='J. Rosenberg'><organization /></author>
+<author initials='H.' surname='Schulzrinne' fullname='H. Schulzrinne'><organization /></author>
+<author initials='G.' surname='Camarillo' fullname='G. Camarillo'><organization /></author>
+<author initials='A.' surname='Johnston' fullname='A. Johnston'><organization /></author>
+<author initials='J.' surname='Peterson' fullname='J. Peterson'><organization /></author>
+<author initials='R.' surname='Sparks' fullname='R. Sparks'><organization /></author>
+<author initials='M.' surname='Handley' fullname='M. Handley'><organization /></author>
+<author initials='E.' surname='Schooler' fullname='E. Schooler'><organization /></author>
+<date year='2002' month='June' />
+<abstract><t>This document describes Session Initiation Protocol (SIP), an application-layer control (signaling) protocol for creating, modifying, and terminating sessions with one or more participants.  These sessions include Internet telephone calls, multimedia distribution, and multimedia conferences.  [STANDARDS-TRACK]</t></abstract>
+</front>
+<seriesInfo name='RFC' value='3261'/>
+<seriesInfo name='DOI' value='10.17487/RFC3261'/>
+</reference>
+<reference  anchor='RFC7301' target='https://www.rfc-editor.org/info/rfc7301'>
+<front>
+<title>Transport Layer Security (TLS) Application-Layer Protocol Negotiation Extension</title>
+<author initials='S.' surname='Friedl' fullname='S. Friedl'><organization /></author>
+<author initials='A.' surname='Popov' fullname='A. Popov'><organization /></author>
+<author initials='A.' surname='Langley' fullname='A. Langley'><organization /></author>
+<author initials='E.' surname='Stephan' fullname='E. Stephan'><organization /></author>
+<date year='2014' month='July' />
+<abstract><t>This document describes a Transport Layer Security (TLS) extension for application-layer protocol negotiation within the TLS handshake. For instances in which multiple application protocols are supported on the same TCP or UDP port, this extension allows the application layer to negotiate which protocol will be used within the TLS connection.</t></abstract>
+</front>
+<seriesInfo name='RFC' value='7301'/>
+<seriesInfo name='DOI' value='10.17487/RFC7301'/>
+</reference>
+    
+
+ </references>
+ </back>
+</rfc>
