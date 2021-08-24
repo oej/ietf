@@ -101,7 +101,7 @@
         <t>Registration following the specification in <xref target="RFC7301" format="default">RFC&nbsp;7301</xref></t>
         <ul>
         <li>Protocol: SIP</li>
-        <li>Identification Sequence: 0x73 0x69 0x70  (“sip")</li>
+        <li>Identification Sequence: 0x73 0x69 0x70 0x2f 0x32 (“sip/2")</li>
         <li>Reference: RFC 3261</li>
         </ul>
       </section>
